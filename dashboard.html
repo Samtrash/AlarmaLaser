@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Sistema Centinela - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #ff00cc, #3333ff, #00ffcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .connection-status {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .connected {
+            background: rgba(0, 255, 0, 0.2);
+            border: 2px solid #00ff00;
+            color: #00ff00;
+        }
+
+        .disconnected {
+            background: rgba(255, 0, 0, 0.2);
+            border: 2px solid #ff0000;
+            color: #ff0000;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        h2 {
+            color: #00d9ff;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1em;
+            margin-bottom: 15px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #00d9ff;
+        }
+
+        button {
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00d9ff, #0099ff);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #00b8e6, #0077cc);
+            transform: scale(1.05);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #00ff88, #00cc66);
+            color: #000;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff0066, #cc0044);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #ffaa00, #ff8800);
+            color: #000;
+        }
+
+        .btn-info {
+            background: linear-gradient(45deg, #bb00ff, #8800cc);
+            color: white;
+        }
+
+        .sensor-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sensor-name {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #00d9ff;
+        }
+
+        .sensor-status {
+            font-size: 2.5em;
+            margin: 10px 0;
+        }
+
+        .sensor-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .system-state {
+            font-size: 1.8em;
+            text-align: center;
+            padding: 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .state-active {
+            background: linear-gradient(45deg, #00ff88, #00cc66);
+            color: #000;
+        }
+
+        .state-disabled {
+            background: linear-gradient(45deg, #ff0066, #cc0044);
+            color: white;
+        }
+
+        .state-paused {
+            background: linear-gradient(45deg, #ffaa00, #ff8800);
+            color: #000;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .video-stream {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .video-placeholder {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .pause-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pause-controls button {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .countdown {
+            text-align: center;
+            font-size: 2em;
+            color: #ffaa00;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        #eventLog {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+        }
+
+        .event-intrusion {
+            background: rgba(255, 0, 102, 0.2);
+        }
+
+        .event-system {
+            background: rgba(0, 255, 136, 0.2);
+        }
+
+        .event-control {
+            background: rgba(255, 170, 0, 0.2);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 15px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .pause-controls button {
+                min-width: 80px;
+            }
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .info-item {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 0.9em;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #00d9ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛡️ Sistema Centinela IoT</h1>
+            <div id="connectionStatus" class="connection-status disconnected">● Desconectado</div>
+        </header>
+
+        <!-- Conexión -->
+        <div class="glass-card">
+            <h2>🔗 Conexión ESP32-CAM</h2>
+            <input type="text" id="esp32IP" placeholder="Ej: 192.168.1.100" value="">
+            <button class="btn-primary" onclick="connect()">Conectar</button>
+        </div>
+
+        <div id="dashboard" style="display:none;">
+            <!-- Estado del Sistema -->
+            <div id="systemState" class="glass-card system-state state-disabled">
+                🔴 ALARMA DESACTIVADA
+            </div>
+
+            <div class="grid-2">
+                <!-- Video en Vivo -->
+                <div class="glass-card">
+                    <h2>📹 Cámara en Vivo</h2>
+                    <div class="video-container">
+                        <img id="videoStream" class="video-stream" style="display:none;">
+                        <div id="videoPlaceholder" class="video-placeholder">
+                            📹 Esperando stream...
+                        </div>
+                    </div>
+                    <button class="btn-info" onclick="capturePhoto()">📸 Capturar Foto</button>
+                </div>
+
+                <!-- Controles -->
+                <div class="glass-card">
+                    <h2>🎛️ Panel de Control</h2>
+                    <button id="btnToggle" class="btn-success" onclick="toggleAlarm()" style="margin-bottom:15px;">
+                        🟢 Activar Alarma
+                    </button>
+                    
+                    <h3 style="color:#00d9ff; margin:20px 0 10px 0;">⏸️ Pausar Alarma</h3>
+                    <div class="pause-controls">
+                        <button class="btn-warning" onclick="pauseAlarm(5)">5 min</button>
+                        <button class="btn-warning" onclick="pauseAlarm(10)">10 min</button>
+                        <button class="btn-warning" onclick="pauseAlarm(15)">15 min</button>
+                        <button class="btn-warning" onclick="pauseAlarm(30)">30 min</button>
+                        <button class="btn-warning" onclick="pauseAlarm(60)">60 min</button>
+                    </div>
+                    <div id="countdown" class="countdown" style="display:none;"></div>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Uptime</div>
+                            <div id="uptime" class="info-value">0s</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Última Intrusión</div>
+                            <div id="lastIntrusion" class="info-value">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sensores -->
+            <div class="glass-card">
+                <h2>📡 Estado de Sensores</h2>
+                <div class="grid-3">
+                    <div class="sensor-card">
+                        <div class="sensor-name">Sector 1</div>
+                        <div id="sensor1" class="sensor-status">-</div>
+                        <div class="sensor-label">Esperando...</div>
+                    </div>
+                    <div class="sensor-card">
+                        <div class="sensor-name">Sector 2</div>
+                        <div id="sensor2" class="sensor-status">-</div>
+                        <div class="sensor-label">Esperando...</div>
+                    </div>
+                    <div class="sensor-card">
+                        <div class="sensor-name">Sector 3</div>
+                        <div id="sensor3" class="sensor-status">-</div>
+                        <div class="sensor-label">Esperando...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registro de Eventos -->
+            <div class="glass-card">
+                <h2>📋 Registro de Eventos</h2>
+                <div id="eventLog"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para foto capturada -->
+    <div id="photoModal" class="modal">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="capturedPhoto">
+    </div>
+
+    <script>
+        let esp32Url = '';
+        let statusInterval = null;
+        let logsInterval = null;
+        let countdownInterval = null;
+        let alarmState = {};
+
+        // Cargar IP guardada
+        window.onload = () => {
+            const savedIP = localStorage.getItem('esp32IP');
+            if (savedIP) {
+                document.getElementById('esp32IP').value = savedIP;
+            }
+        };
+
+        function connect() {
+            const ip = document.getElementById('esp32IP').value.trim();
+            if (!ip) {
+                alert('Por favor ingresa la dirección IP del ESP32');
+                return;
+            }
+
+            esp32Url = `http://${ip}`;
+            localStorage.setItem('esp32IP', ip);
+
+            // Probar conexión
+            fetch(`${esp32Url}/status`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('connectionStatus').textContent = '● Conectado';
+                    document.getElementById('connectionStatus').className = 'connection-status connected';
+                    document.getElementById('dashboard').style.display = 'block';
+                    
+                    // Iniciar video stream
+                    document.getElementById('videoStream').src = `${esp32Url}/stream`;
+                    document.getElementById('videoStream').style.display = 'block';
+                    document.getElementById('videoPlaceholder').style.display = 'none';
+                    
+                    // Iniciar polling
+                    updateStatus();
+                    updateLogs();
+                    statusInterval = setInterval(updateStatus, 2000);
+                    logsInterval = setInterval(updateLogs, 5000);
+                })
+                .catch(err => {
+                    alert('Error al conectar con el ESP32. Verifica la IP y que estés en la misma red WiFi.');
+                    console.error(err);
+                });
+        }
+
+        function updateStatus() {
+            fetch(`${esp32Url}/status`)
+                .then(res => res.json())
+                .then(data => {
+                    alarmState = data;
+                    
+                    // Estado del sistema
+                    const stateDiv = document.getElementById('systemState');
+                    if (data.paused_until > 0 && Date.now() < data.paused_until) {
+                        stateDiv.textContent = '⏸️ ALARMA EN PAUSA';
+                        stateDiv.className = 'glass-card system-state state-paused';
+                        startCountdown(data.paused_until);
+                    } else if (data.enabled) {
+                        stateDiv.textContent = '🟢 ALARMA ACTIVA';
+                        stateDiv.className = 'glass-card system-state state-active';
+                        document.getElementById('countdown').style.display = 'none';
+                    } else {
+                        stateDiv.textContent = '🔴 ALARMA DESACTIVADA';
+                        stateDiv.className = 'glass-card system-state state-disabled';
+                        document.getElementById('countdown').style.display = 'none';
+                    }
+                    
+                    // Botón de toggle
+                    const btnToggle = document.getElementById('btnToggle');
+                    if (data.enabled) {
+                        btnToggle.textContent = '🔴 Desactivar Alarma';
+                        btnToggle.className = 'btn-danger';
+                    } else {
+                        btnToggle.textContent = '🟢 Activar Alarma';
+                        btnToggle.className = 'btn-success';
+                    }
+                    
+                    // Sensores
+                    updateSensor('sensor1', data.sensors.sector1);
+                    updateSensor('sensor2', data.sensors.sector2);
+                    updateSensor('sensor3', data.sensors.sector3);
+                    
+                    // Info
+                    const uptime = Math.floor(data.uptime / 60);
+                    document.getElementById('uptime').textContent = uptime > 0 ? `${uptime}m` : `${data.uptime}s`;
+                    
+                    if (data.last_intrusion > 0) {
+                        const elapsed = Math.floor((data.uptime - data.last_intrusion) / 60);
+                        document.getElementById('lastIntrusion').textContent = `Hace ${elapsed}m`;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('connectionStatus').textContent = '● Desconectado';
+                    document.getElementById('connectionStatus').className = 'connection-status disconnected';
+                });
+        }
+
+        function updateSensor(id, isNormal) {
+            const elem = document.getElementById(id);
+            if (isNormal) {
+                elem.textContent = '✅';
+                elem.nextElementSibling.textContent = 'Normal';
+                elem.style.color = '#00ff88';
+            } else {
+                elem.textContent = '⚠️';
+                elem.nextElementSibling.textContent = '¡Activado!';
+                elem.style.color = '#ff0066';
+            }
+        }
+
+        function toggleAlarm() {
+            const endpoint = alarmState.enabled ? '/alarm/disable' : '/alarm/enable';
+            fetch(`${esp32Url}${endpoint}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(() => updateStatus())
+                .catch(err => alert('Error al cambiar estado de alarma'));
+        }
+
+        function pauseAlarm(minutes) {
+            fetch(`${esp32Url}/alarm/pause?minutes=${minutes}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(() => updateStatus())
+                .catch(err => alert('Error al pausar alarma'));
+        }
+
+        function startCountdown(endTime) {
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            document.getElementById('countdown').style.display = 'block';
+            
+            countdownInterval = setInterval(() => {
+                const now = Date.now();
+                const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
+                
+                if (remaining <= 0) {
+                    document.getElementById('countdown').style.display = 'none';
+                    clearInterval(countdownInterval);
+                    return;
+                }
+                
+                const mins = Math.floor(remaining / 60);
+                const secs = remaining % 60;
+                document.getElementById('countdown').textContent = 
+                    `⏸️ Pausado: ${mins}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function updateLogs() {
+            fetch(`${esp32Url}/logs`)
+                .then(res => res.json())
+                .then(events => {
+                    const logDiv = document.getElementById('eventLog');
+                    
+                    if (events.length === 0 || events.every(e => e.timestamp === 0)) {
+                        logDiv.innerHTML = '<p style="text-align:center; opacity:0.5;">No hay eventos registrados</p>';
+                        return;
+                    }
+                    
+                    let tableHTML = '<table><thead><tr><th>Timestamp</th><th>Tipo</th><th>Detalles</th></tr></thead><tbody>';
+                    
+                    events.reverse().forEach(event => {
+                        if (event.timestamp === 0) return;
+                        
+                        const date = new Date(event.timestamp * 1000);
+                        const time = date.toLocaleTimeString();
+                        
+                        let rowClass = 'event-system';
+                        let typeIcon = '🟢';
+                        if (event.type.includes('intrusion')) {
+                            rowClass = 'event-intrusion';
+                            typeIcon = '⚠️';
+                        } else if (event.type.includes('paused') || event.type.includes('disabled')) {
+                            rowClass = 'event-control';
+                            typeIcon = '🟡';
+                        }
+                        
+                        let details = event.type;
+                        if (event.sector > 0) details += ` - Sector ${event.sector}`;
+                        
+                        tableHTML += `<tr class="${rowClass}"><td>${time}</td><td>${typeIcon} ${event.type}</td><td>${details}</td></tr>`;
+                    });
+                    
+                    tableHTML += '</tbody></table>';
+                    logDiv.innerHTML = tableHTML;
+                })
+                .catch(err => console.error('Error al cargar logs:', err));
+        }
+
+        function capturePhoto() {
+            const photoUrl = `${esp32Url}/photo/capture?t=${Date.now()}`;
+            document.getElementById('capturedPhoto').src = photoUrl;
+            document.getElementById('photoModal').style.display = 'flex';
+            
+            // Descargar automáticamente
+            const link = document.createElement('a');
+            link.href = photoUrl;
+            link.download = `centinela_${Date.now()}.jpg`;
+            link.click();
+        }
+
+        function closeModal() {
+            document.getElementById('photoModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# WiFi credentials - keep private
+*.credentials.h
+
+# Build artifacts
+*.bin
+*.elf
+.pio/
+build/
+
+# IDE files
+.vscode/
+.idea/
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
